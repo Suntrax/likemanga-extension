@@ -1,4 +1,4 @@
-package com.blissless.oni_extension_template
+package com.blissless.likemanga
 
 import android.content.BroadcastReceiver
 import android.content.Context

@@ -1,9 +1,9 @@
-import java.util.Properties
-import java.io.FileInputStream
-
 plugins {
     alias(libs.plugins.android.application)
 }
+
+import java.util.Properties
+import java.io.FileInputStream
 
 val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("local.properties")
@@ -13,23 +13,25 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.blissless.oni_extension_template"
+    namespace = "com.blissless.likemanga"
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.blissless.oni_extension_template"
+        applicationId = "com.blissless.likemanga"
         minSdk = 26
         targetSdk = 37
         versionCode = 1
-        versionName = "1.0.0"
+        versionName = "1.0"
     }
 
     signingConfigs {
-        create("release") {
-            storeFile = file(keystoreProperties["storeFile"] as String)
-            storePassword = keystoreProperties["storePassword"] as String
-            keyAlias = keystoreProperties["keyAlias"] as String
-            keyPassword = keystoreProperties["keyPassword"] as String
+        if (keystoreProperties.containsKey("storeFile")) {
+            create("release") {
+                storeFile = file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+            }
         }
     }
 
@@ -37,10 +39,12 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            signingConfig = signingConfigs.getByName("release")
+            if (keystoreProperties.containsKey("storeFile")) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "src/main/keepRules/rules.keep" // <--- ADDED THIS LINE!
+                "src/main/keepRules/rules.keep"
             )
         }
     }
@@ -52,5 +56,6 @@ android {
 }
 
 dependencies {
-    // Empty! We only use built-in Android APIs to keep APK size under 50KB.
+    // Empty! We only use built-in Android APIs (HttpURLConnection, WebView,
+    // org.json) to keep APK size minimal (~50 KB after R8).
 }
